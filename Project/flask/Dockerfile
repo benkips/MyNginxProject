@@ -1,11 +1,15 @@
 
 # Step 1: Import the Os
-FROM alpine:latest
+FROM python:3.9-buster
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV FLASK_APP=app.py
+ENV FLASK_ENV=development
 
 # Step 2: Install pip and Python Dependencies
-RUN apk add --no-cache python3-dev
-RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
-RUN python3 -m ensurepip
+RUN python3 --version
+RUN pip3 --version
 # Step 3: Create a Work Directory
 WORKDIR /app
 
@@ -13,14 +17,7 @@ WORKDIR /app
 COPY . /app
 
 # Step 5: Install all Dependencies for WSGI
-RUN set -e; \
-	apk add --no-cache --virtual .build-deps \
-		gcc \
-		libc-dev \
-		linux-headers \
-	; \
-	pip3 --no-cache-dir install -r requirements.txt; \
-	apk del .build-deps;
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Step 6:  run the command to start uWSGI
 CMD ["uwsgi", "app.ini"]
